@@ -38,6 +38,7 @@ def retrieve_archived_url_from_waybackmachine(url):
             return data.get("archived_snapshots").get("closest").get("url")
         except urllib.error.HTTPError as e:
             print(f"Could not access {url} {e}")
+            return None
 
 
 
@@ -50,6 +51,9 @@ if __name__ == "__main__":
 
     for url in set(find_urls_in_text(data)):
 
+        if not url.lower().startswith("http"):
+            url = f'http://{url}'
+        
         url = url.strip(r"()[]{}")
 
         # check if already archived:
