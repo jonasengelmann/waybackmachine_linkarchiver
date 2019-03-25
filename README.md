@@ -14,7 +14,8 @@ pip install -r requirements.txt
 
 
 ```
-python archive_links.py example_document_containing_links.txt
+python archive_links.py -t example_document_containing_links.txt
+python archive_links.py -u www.wikipedia.org
 ```
 
-For now, only files that can be read as simple text are supported. PDF and DOCX support will be added soon!
+For now, only files are supported that can be read as simple text. PDF and DOCX support will be added soon!
