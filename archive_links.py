@@ -1,7 +1,6 @@
 import argparse
 import json
 import logging
-import sys
 import urllib.request
 
 from urlextract import URLExtract
@@ -14,17 +13,20 @@ def clean_url(url):
         url = f'http://{url}'
     return url
 
+
 def find_urls_in_text(text):
     extractor = URLExtract()
     return set(extractor.find_urls(text))
+
 
 def get_final_redirected_url(url):
     try:
         response = urllib.request.urlopen(url)
         return response.geturl()
-    except (urllib.error.HTTPError, urllib.error.URLError) as e:
-        logging.error(f'Could not access {url} {e}')
+    except (urllib.error.HTTPError, urllib.error.URLError) as ex:
+        logging.error(f'Could not access {url} {ex}')
         return None
+
 
 def push_url_to_waybackmachine(url):
     root_url = 'https://web.archive.org/save/'
@@ -33,9 +35,10 @@ def push_url_to_waybackmachine(url):
         try:
             urllib.request.urlopen(root_url + url)
             return fetch_archived_url_from_waybackmachine(url)
-        except (urllib.error.HTTPError, urllib.error.URLError) as e:
-            logging.error(f'Could not archive {url} {e}')
+        except (urllib.error.HTTPError, urllib.error.URLError) as ex:
+            logging.error(f'Could not archive {url} {ex}')
             return None
+
 
 def fetch_archived_url_from_waybackmachine(url):
     url = get_final_redirected_url(url)
@@ -45,9 +48,10 @@ def fetch_archived_url_from_waybackmachine(url):
                 f'http://archive.org/wayback/available?url={url}')
             data = json.loads(response.read())
             return data.get('archived_snapshots').get('closest').get('url')
-        except (urllib.error.HTTPError, urllib.error.URLError) as e:
-            logging.error(f'Could not access {url} {e}')
+        except (urllib.error.HTTPError, urllib.error.URLError) as ex:
+            logging.error(f'Could not access {url} {ex}')
             return None
+
 
 def archive_url(url, force_new_archive=False):
     archived_url = None
@@ -68,21 +72,22 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-u', '--url', help='URL you want to archive.', type=str)
-    group.add_argument('-f', '--file', help='''Path to a textfile containing urls. The
-                                  script will make a copy of the textfile and
-                                  replace all urls with their archived version.
-                                  The textfile can also contain non url
-                                  content.''', type=str)
-    parser.add_argument('--force',
-                        help='''When an an url is already archived, we can
-                                  use this parameter to assure a new archived
-                                  version is created.''',
-                        action='store_true')
-
+    group.add_argument('-u', '--url', type=str,
+                       help='URL you want to archive')
+    group.add_argument('-f', '--file', type=str,
+                       help='''Path to a text file containing urls. The
+                               script will make a copy of the text file and
+                               replace all urls with their archived version.
+                               The text file can also contain non url
+                               content''')
+    parser.add_argument('--force', action='store_true',
+                        help='''When an url is already archived, we can
+                                use this argument to assure that a new
+                                archived version is created''')
 
     args = parser.parse_args()
-    logging.basicConfig(level=logging.DEBUG, format='%(levelname)-8s%(message)s')
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(levelname)-8s%(message)s')
 
     logging.info('Archiving urls...')
 
@@ -91,9 +96,8 @@ if __name__ == '__main__':
         archive_url(url, args.force)
 
     if args.file:
-        with open(args.file, 'r') as in_file:
-            data = in_file.read()
-        
+        data = open(args.file, 'r').read()
+
         with open(args.file + "_urls_archived", 'w') as out_file:
             for url in find_urls_in_text(data):
                 new_url = archive_url(clean_url(url), args.force)
