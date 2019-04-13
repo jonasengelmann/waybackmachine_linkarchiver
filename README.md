@@ -23,7 +23,7 @@ optional arguments:
                         their archived version. The text file can also contain
                         non url content
   --force               When an url is already archived, we can use this
-                        argument to assure that a new archived version is
+                        argument to ensure that a new archived version is
                         created
 ```
 

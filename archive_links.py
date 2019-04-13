@@ -82,7 +82,7 @@ if __name__ == '__main__':
                                content''')
     parser.add_argument('--force', action='store_true',
                         help='''When an url is already archived, we can
-                                use this argument to assure that a new
+                                use this argument to ensure that a new
                                 archived version is created''')
 
     args = parser.parse_args()
